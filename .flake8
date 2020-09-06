@@ -1,0 +1,11 @@
+# This configuration mirrors the configuration that is used when linting
+# collections on import into Ansible Galaxy.
+[flake8]
+exclude =
+    # ansible-test creates all sorts of temporary stuff that we do not care
+    # about.
+    tests/output
+
+per-file-ignores =
+    # Modules have their imports listed after the metadata.
+    plugins/modules/*.py:E402

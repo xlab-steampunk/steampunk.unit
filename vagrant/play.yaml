@@ -1,0 +1,17 @@
+---
+- hosts: all
+  become: true
+
+  tasks:
+    #    - name: install Unit
+    #      include_role:
+    #        name: steampunk.unit.install
+
+    - name: Create route
+      steampunk.unit.route:
+        provider:
+          endpoint: "enix:///bad/file"
+        name: test
+        steps:
+          - action:
+              share: /tmp
