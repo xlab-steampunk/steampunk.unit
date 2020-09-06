@@ -1,0 +1,16 @@
+---
+- hosts: all
+  name: Prepare
+  gather_facts: false
+
+  tasks:
+    - name: Create a directory for app
+      file:
+        path: /www
+        state: directory
+
+    - name: Copy python application
+      copy:
+        src: files/wsgi.py
+        dest: /www/wsgi.py
+        mode: "644"

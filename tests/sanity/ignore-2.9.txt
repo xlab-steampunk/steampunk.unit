@@ -1,0 +1,2 @@
+tests/integration/molecule/module_python_app/files/wsgi.py future-import-boilerplate!skip # Test fixtures
+tests/integration/molecule/module_python_app/files/wsgi.py metaclass-boilerplate!skip # Test fixtures

@@ -1,0 +1,134 @@
+---
+- hosts: all
+  name: Converge
+  gather_facts: false
+
+  tasks:
+    - name: Make sure we have no apps at the start
+      steampunk.unit.app_info:
+      register: result
+    - assert:
+        that:
+          - result is not changed
+          - result.objects | length == 0
+
+    - name: Create python application (check mode)
+      steampunk.unit.python_app: &app
+        name: sample
+        module: wsgi
+        path: /www
+      check_mode: true
+      register: result
+    - assert:
+        that:
+          - result is changed
+          - "result.object.name == 'sample'"
+
+    - name: Make sure we still have no apps
+      steampunk.unit.app_info:
+      register: result
+    - assert:
+        that:
+          - result.objects | length == 0
+
+    - name: Create python application
+      steampunk.unit.python_app: *app
+      register: result
+    - assert:
+        that:
+          - result is changed
+          - "result.object.name == 'sample'"
+
+    - name: Now we should have a single app running
+      steampunk.unit.app_info:
+      register: result
+    - assert:
+        that:
+          - result.objects | length == 1
+
+    - name: Create python application (idempotency)
+      steampunk.unit.python_app: *app
+      register: result
+    - assert:
+        that:
+          - result is not changed
+          - "result.object.name == 'sample'"
+
+    - name: Retrive specific app info
+      steampunk.unit.app_info:
+        name: sample
+      register: result
+    - assert:
+        that:
+          - result.objects | length == 1
+          - "result.objects.0.name == 'sample'"
+          - "result.objects.0.module == 'wsgi'"
+          - "result.objects.0.path == '/www'"
+
+    - name: Update app
+      steampunk.unit.python_app:
+        name: sample
+        module: wsgi
+        path: /www
+        no_processes: 2
+      register: result
+    - assert:
+        that:
+          - result is changed
+          - "result.object.name == 'sample'"
+          - "result.object.module == 'wsgi'"
+          - "result.object.path == '/www'"
+          - result.object.no_processes == 2
+
+    - name: Check for app update
+      steampunk.unit.app_info:
+      register: result
+    - assert:
+        that:
+          - result.objects | length == 1
+          - "result.objects.0.name == 'sample'"
+          - "result.objects.0.module == 'wsgi'"
+          - "result.objects.0.path == '/www'"
+          - result.objects.0.no_processes == 2
+
+    - name: Delete python application (check mode)
+      steampunk.unit.python_app:
+        name: sample
+        state: absent
+      check_mode: true
+      register: result
+    - assert:
+        that:
+          - result is changed
+
+    - name: Now we should still have a single app running
+      steampunk.unit.app_info:
+      register: result
+    - assert:
+        that:
+          - result.objects | length == 1
+
+    - name: Delete python application
+      steampunk.unit.python_app:
+        name: sample
+        state: absent
+      register: result
+    - assert:
+        that:
+          - result is changed
+
+    - name: No apps should be present anymore
+      steampunk.unit.app_info:
+      register: result
+    - assert:
+        that:
+          - result.objects | length == 0
+
+    - name: Delete python application (idempotency)
+      steampunk.unit.python_app:
+        name: sample
+        state: absent
+      register: result
+    - assert:
+        that:
+          - result is not changed
