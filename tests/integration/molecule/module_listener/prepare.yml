@@ -1,0 +1,15 @@
+---
+- hosts: all
+  name: Prepare
+  gather_facts: false
+
+  tasks:
+    - name: Create sample route for listener to redirect to
+      steampunk.unit.route:
+        name: "{{ item }}"
+        steps:
+          - action:
+              share: /tmp
+      loop:
+        - first
+        - second

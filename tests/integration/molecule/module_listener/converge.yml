@@ -1,0 +1,148 @@
+---
+- hosts: all
+  name: Converge
+  gather_facts: false
+
+  tasks:
+    - name: Make sure we have no listeners currently
+      steampunk.unit.listener_info:
+      register: result
+    - assert:
+        that:
+          - result is not changed
+          - result.objects | length == 0
+
+    - name: Create new listener (check mode)
+      steampunk.unit.listener: &listener1
+        pattern: "*:81"
+        pass: routes/first
+      check_mode: true
+      register: result
+    - assert:
+        that:
+          - result is changed
+          - "result.object.pattern == '*:81'"
+
+    - name: Make sure we still have no listeners
+      steampunk.unit.listener_info:
+      register: result
+    - assert:
+        that:
+          - result.objects | length == 0
+
+    - name: Create new listener
+      steampunk.unit.listener: *listener1
+      register: result
+    - assert:
+        that:
+          - result is changed
+          - "result.object.pattern == '*:81'"
+
+    - name: Make sure we have one listener
+      steampunk.unit.listener_info:
+      register: result
+    - assert:
+        that:
+          - result.objects | length == 1
+          - "result.objects.0.pattern == '*:81'"
+
+    - name: Create new listener (idempotency)
+      steampunk.unit.listener: *listener1
+      register: result
+    - assert:
+        that:
+          - result is not changed
+          - "result.object.pattern == '*:81'"
+
+    - name: Make sure we still have one listener
+      steampunk.unit.listener_info:
+      register: result
+    - assert:
+        that:
+          - result.objects | length == 1
+          - "result.objects.0.pattern == '*:81'"
+
+    - name: Update listener
+      steampunk.unit.listener:
+        pattern: "*:81"
+        pass: routes/second
+      register: result
+    - assert:
+        that:
+          - result is changed
+          - "result.object.pattern == '*:81'"
+          - "result.object.pass == 'routes/second'"
+
+    - name: Add second listener
+      steampunk.unit.listener:
+        pattern: "127.0.0.1:8000"
+        pass: routes/first
+      register: result
+    - assert:
+        that:
+          - result is changed
+          - "result.object.pattern == '127.0.0.1:8000'"
+
+    - name: Make sure we have two listeners
+      steampunk.unit.listener_info:
+      register: result
+    - assert:
+        that:
+          - result.objects | length == 2
+
+    - name: Retrieve specific listener
+      steampunk.unit.listener_info:
+        pattern: "*:81"
+      register: result
+    - assert:
+        that:
+          - result.objects | length == 1
+          - "result.objects.0.pattern == '*:81'"
+          - "result.objects.0.pass == 'routes/second'"
+
+    - name: Delete listener (check mode)
+      steampunk.unit.listener: &listener2
+        pattern: "*:81"
+        state: absent
+      check_mode: true
+      register: result
+    - assert:
+        that:
+          - result is changed
+
+    - name: Make sure we still have two listeners
+      steampunk.unit.listener_info:
+      register: result
+    - assert:
+        that:
+          - result.objects | length == 2
+
+    - name: Delete listener
+      steampunk.unit.listener: *listener2
+      register: result
+    - assert:
+        that:
+          - result is changed
+
+    - name: Make sure we only have one listener left
+      steampunk.unit.listener_info:
+      register: result
+    - assert:
+        that:
+          - result.objects | length == 1
+          - "result.objects.0.pattern == '127.0.0.1:8000'"
+
+    - name: Delete listener (idempotency)
+      steampunk.unit.listener: *listener2
+      register: result
+    - assert:
+        that:
+          - result is not changed
+
+    - name: Make sure we only have one listener left
+      steampunk.unit.listener_info:
+      register: result
+    - assert:
+        that:
+          - result.objects | length == 1
+          - "result.objects.0.pattern == '127.0.0.1:8000'"
