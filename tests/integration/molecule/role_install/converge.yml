@@ -1,0 +1,11 @@
+---
+- name: Converge
+  hosts: all
+  gather_facts: true
+
+  tasks:
+    - name: Install NGINX Unit
+      include_role:
+        name: steampunk.unit.install
+      vars:
+        app_languages: [ go, python27 ]

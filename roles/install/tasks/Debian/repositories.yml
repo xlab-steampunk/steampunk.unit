@@ -1,0 +1,9 @@
+---
+- name: Add NGINX Unit apt key
+  apt_key:
+    url: https://nginx.org/keys/nginx_signing.key
+
+- name: Add NGINX Unit apt repository
+  apt_repository:
+    repo: deb https://packages.nginx.org/unit/debian/ {{ ansible_distribution_release }}  unit
+    filename: nginx-unit

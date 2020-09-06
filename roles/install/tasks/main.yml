@@ -1,0 +1,9 @@
+---
+- name: Prepare package repositories
+  include_tasks: repositories.yml
+
+- name: Install selected packages
+  include_tasks: packages.yml
+
+- name: Start the service
+  include_tasks: service.yml

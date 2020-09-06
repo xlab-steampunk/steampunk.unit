@@ -1,0 +1,21 @@
+---
+- name: Install NGINX Unit package
+  apt:
+    name: >
+      {{ 'apt' | steampunk.unit.package_name('unit', version, build) }}
+    # Apt only supports latest state on names with no version suffix.
+    state: "{{ (version == 'latest') | ternary('latest', 'present') }}"
+
+- name: Install language package
+  apt:
+    name: >
+      {{
+        'apt' |
+        steampunk.unit.package_name(
+          _lang_pkgs[ansible_distribution][ansible_distribution_major_version][item],
+          version, build
+        )
+      }}
+    # Apt only supports latest state on names with no version suffix.
+    state: "{{ (version == 'latest') | ternary('latest', 'present') }}"
+  loop: "{{ app_languages }}"

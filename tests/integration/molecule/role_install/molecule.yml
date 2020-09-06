@@ -1,0 +1,25 @@
+scenario:
+  test_sequence:
+    - destroy
+    - create
+    - converge
+    - idempotence
+    - verify
+    - check
+    - destroy
+
+platforms:
+  - name: centos-8
+    image: xlabsi/nginx-unit-tests-centos:8
+    pre_build_image: true
+    override_command: false
+    privileged: true
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+  - name: debian-10
+    image: xlabsi/nginx-unit-tests-debian:10
+    pre_build_image: true
+    override_command: false
+    privileged: true
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro

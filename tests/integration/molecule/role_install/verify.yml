@@ -1,0 +1,21 @@
+---
+- name: Verify
+  hosts: all
+
+  tasks:
+    - package_facts:
+        manager: auto
+
+    - assert:
+        that:
+          - "'unit' in ansible_facts.packages"
+          - "'unit-go' in ansible_facts.packages"
+          - "'unit-python27' in ansible_facts.packages"
+      when: "ansible_distribution in ['CentOS']"
+
+    - assert:
+        that:
+          - "'unit' in ansible_facts.packages"
+          - "'unit-go' in ansible_facts.packages"
+          - "'unit-python2.7' in ansible_facts.packages"
+      when: "ansible_distribution in ['Debian']"

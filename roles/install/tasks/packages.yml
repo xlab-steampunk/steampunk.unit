@@ -1,0 +1,3 @@
+---
+- name: Install NGINX Unit packages
+  include_tasks: "{{ ansible_pkg_mgr }}/packages.yml"

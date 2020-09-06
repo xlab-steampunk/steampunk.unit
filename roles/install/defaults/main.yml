@@ -1,0 +1,25 @@
+---
+version: latest
+build: latest
+app_languages: []
+
+# Supported packages for each supported OS version
+_lang_pkgs:
+  CentOS:
+    "7": &centos7
+      go: unit-go
+      jsc8: unit-jsc8
+      jsc11: unit-jsc11
+      perl: unit-perl
+      php: unit-php
+      python27: unit-python27
+      python36: unit-python36
+    "8": *centos7
+  Debian:
+    "10":
+      go: unit-go
+      jsc11: unit-jsc11
+      perl: unit-perl
+      php: unit-php
+      python27: unit-python2.7
+      python37: unit-python3.7

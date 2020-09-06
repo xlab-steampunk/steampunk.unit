@@ -1,0 +1,23 @@
+---
+# Why did we kill the 403 (package installs should not use latest) check?
+# Because we really do want to be able to upgrade the packages to the latest
+# stable version.
+
+- name: Install NGINX Unit package
+  yum:
+    name: >
+      {{ 'yum' | steampunk.unit.package_name('unit', version, build) }}
+    state: latest  # noqa 403
+
+- name: Install language package
+  yum:
+    name: >
+      {{
+        'yum' |
+        steampunk.unit.package_name(
+          _lang_pkgs[ansible_distribution][ansible_distribution_major_version][item],
+          version, build
+        )
+      }}
+    state: latest  # noqa 403
+  loop: "{{ app_languages }}"

@@ -1,0 +1,20 @@
+galaxy_info:
+  author: XLAB Steampunk <steampunk@xlab.si>
+  description: Install NGINX Unit
+
+  license: GPL-3.0-or-later
+  min_ansible_version: 2.9
+
+  # https://galaxy.ansible.com/api/v1/platforms/
+  platforms:
+    - name: EL
+      versions:
+        - "8"
+    - name: Debian
+      versions:
+        - buster
+
+  galaxy_tags:
+    - nginx
+    - unit
+    - server
