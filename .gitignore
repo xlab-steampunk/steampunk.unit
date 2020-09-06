@@ -1,0 +1,4 @@
+venv
+tests/output
+*.pyc
+vagrant/.vagrant

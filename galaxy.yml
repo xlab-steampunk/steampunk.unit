@@ -1,0 +1,17 @@
+namespace: steampunk
+name: unit
+version: 0.7.0
+readme: README.md
+authors:
+  - XLAB Steampunk <steampunk@xlab.si>
+description: Content for managing NGINX Unit
+license:
+  - GPL-3.0-or-later
+tags:
+  - nginx
+  - unit
+
+repository: https://github.com/xlab-steampunk/steampunk.unit
+documentation: https://docs.steampunk.si/unit
+homepage: https://github.com/xlab-steampunk/steampunk.unit
+issues: https://github.com/xlab-steampunk/steampunk.unit/issues
