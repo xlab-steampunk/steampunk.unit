@@ -1,0 +1,6 @@
+FROM nginx/unit:1.18.0-python3.7
+
+RUN \
+  apt-get update; \
+  apt-get install -y python3 python3-q python python-q; \
+  apt-get clean;
