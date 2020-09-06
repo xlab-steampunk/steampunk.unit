@@ -1,0 +1,289 @@
+---
+- hosts: all
+  name: Converge
+  gather_facts: false
+
+  tasks:
+    - name: Retrieve all routes
+      steampunk.unit.route_info:
+      register: result
+    - assert:
+        that:
+          - result is not changed
+          - result.objects | length == 0
+
+    - name: Complex route (check mode)
+      steampunk.unit.route: &complex
+        name: complex
+        steps:
+          - match:
+              uri: /admin/*
+              scheme: https
+              arguments:
+                - mode: strict
+                  access: "!raw"
+              cookies:
+                - user_role: admin
+            action:
+              share: /tmp
+          - action:
+              share: /www/static/
+      check_mode: true
+      register: result
+    - assert:
+        that:
+          - result is changed
+          - "result.object.name == 'complex'"
+          - result.object.steps | length == 2
+
+    - name: Make sure nothing was added
+      steampunk.unit.route_info:
+      register: result
+    - assert:
+        that:
+          - result is not changed
+          - result.objects | length == 0
+
+    - name: Complex route
+      steampunk.unit.route: *complex
+      register: result
+    - assert:
+        that:
+          - result is changed
+          - "result.object.name == 'complex'"
+          - result.object.steps | length == 2
+
+    - name: Make sure we have exactly one route now
+      steampunk.unit.route_info:
+      register: result
+    - assert:
+        that:
+          - result is not changed
+          - result.objects | length == 1
+          - "result.objects.0.name == 'complex'"
+
+    - name: Complex route (idempotency)
+      steampunk.unit.route: *complex
+      register: result
+    - assert:
+        that:
+          - result is not changed
+          - "result.object.name == 'complex'"
+          - result.object.steps | length == 2
+
+    - name: Make sure we still have exactly one route
+      steampunk.unit.route_info:
+      register: result
+    - assert:
+        that:
+          - result is not changed
+          - result.objects | length == 1
+
+
+    - name: Add another route
+      steampunk.unit.route:
+        name: another_one
+        steps:
+          - action:
+              share: /tmp/
+      register: result
+    - assert:
+        that:
+          - result is changed
+          - result.object.steps | length == 1
+
+    - name: Make sure we have two routes now
+      steampunk.unit.route_info:
+      register: result
+    - assert:
+        that:
+          - result is not changed
+          - result.objects | length == 2
+
+    - name: Update complex route
+      steampunk.unit.route:
+        name: complex
+        steps:
+          - action:
+              share: /www/static/
+      register: result
+    - assert:
+        that:
+          - result is changed
+          - "result.object.name == 'complex'"
+          - result.object.steps | length == 1
+
+    - name: Retrieve information about the complex route
+      steampunk.unit.route_info:
+        name: complex
+      register: result
+    - assert:
+        that:
+          - result is not changed
+          - result.objects | length == 1
+          - "result.objects.0.name == 'complex'"
+          - result.objects.0.steps | length == 1
+
+    - name: Remove complex route (check mode)
+      steampunk.unit.route: &complex_remove
+        name: complex
+        state: absent
+      check_mode: true
+      register: result
+    - assert:
+        that:
+          - result is changed
+
+    - name: Make sure we still have two routes
+      steampunk.unit.route_info:
+      register: result
+    - assert:
+        that:
+          - result is not changed
+          - result.objects | length == 2
+
+    - name: Remove complex route
+      steampunk.unit.route: *complex_remove
+      register: result
+    - assert:
+        that:
+          - result is changed
+
+    - name: We should be back to one route
+      steampunk.unit.route_info:
+      register: result
+    - assert:
+        that:
+          - result is not changed
+          - result.objects | length == 1
+
+    - name: Remove complex route (idempotency)
+      steampunk.unit.route: *complex_remove
+      register: result
+    - assert:
+        that:
+          - result is not changed
+
+    - name: There should still be one route
+      steampunk.unit.route_info:
+      register: result
+    - assert:
+        that:
+          - result is not changed
+          - result.objects | length == 1
+          - "result.objects.0.name == 'another_one'"
+    
+    - name: Global routes (check mode)
+      steampunk.unit.route: &global
+        global: true
+        steps:
+          - match:
+              host: blog.example.com/admin
+              source: "*:8000-9000"
+            action:
+              share: /tmp
+          - match:
+              host:
+                - blog.example.com
+                - blog.*.org
+              source: "*:8000-9000"
+            action:
+              return: 401
+          - action:
+              share: /www/static/
+              fallback:
+                share: /old/static/
+                fallback:
+                  return: 404
+      check_mode: true
+      register: result
+    - assert:
+        that:
+          - result is changed
+          - result.object.name is none
+          - result.object.steps | length == 3
+
+    - name: There should still be previous named route present
+      steampunk.unit.route_info:
+      register: result
+    - assert:
+        that:
+          - result is not changed
+          - result.objects | length == 1
+          - "result.objects.0.name == 'another_one'"
+
+    - name: Global routes
+      steampunk.unit.route: *global
+      register: result
+    - assert:
+        that:
+          - result is changed
+          - result.object.name is none
+          - result.object.steps | length == 3
+
+    - name: Now we should have only one global route
+      steampunk.unit.route_info:
+      register: result
+    - assert:
+        that:
+          - result is not changed
+          - result.objects | length == 1
+          - result.objects.0.name is none
+
+    - name: Global routes (idempotency)
+      steampunk.unit.route: *global
+      register: result
+    - assert:
+        that:
+          - result is not changed
+          - result.object.name is none
+          - result.object.steps | length == 3
+
+    - name: Delete global routes (check mode)
+      steampunk.unit.route: &global_remove
+        global: true
+        state: absent
+      check_mode: true
+      register: result
+    - assert:
+        that:
+          - result is changed
+
+    - name: Still only one global route
+      steampunk.unit.route_info:
+      register: result
+    - assert:
+        that:
+          - result is not changed
+          - result.objects | length == 1
+          - result.objects.0.name is none
+
+    - name: Delete global routes
+      steampunk.unit.route: *global_remove
+      register: result
+    - assert:
+        that:
+          - result is changed
+
+    - name: No routes
+      steampunk.unit.route_info:
+      register: result
+    - assert:
+        that:
+          - result is not changed
+          - result.objects | length == 0
+
+    - name: Delete global routes (idempotency)
+      steampunk.unit.route: *global_remove
+      register: result
+    - assert:
+        that:
+          - result is not changed
+
+    - name: Still no routes
+      steampunk.unit.route_info:
+      register: result
+    - assert:
+        that:
+          - result is not changed
+          - result.objects | length == 0

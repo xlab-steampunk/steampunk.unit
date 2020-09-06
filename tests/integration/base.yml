@@ -1,0 +1,28 @@
+---
+dependency:
+  name: galaxy
+driver:
+  name: docker
+provisioner:
+  name: ansible
+  options:
+    vv: true
+  config_options:
+    defaults:
+      interpreter_python: auto_silent
+verifier:
+  name: ansible
+
+scenario:
+  test_sequence:
+    - destroy
+    - create
+    - prepare
+    - converge
+    - destroy
+
+platforms:
+  - name: unit-1.18.0
+    image: xlabsi/nginx-unit-tests-unit:1.18.0
+    pre_build_image: true
+    override_command: false
