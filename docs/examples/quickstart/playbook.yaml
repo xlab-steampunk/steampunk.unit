@@ -1,0 +1,31 @@
+---
+- name: Install and run NGINX Unit
+  hosts: unit_hosts
+  become: true
+
+  tasks:
+    - name: Install Unit
+      include_role:
+        name: steampunk.unit.install
+
+    - name: Create a directory for our application
+      file:
+        path: /var/www
+        state: directory
+
+    - name: Copy application
+      copy:
+        src: files/wsgi.py
+        dest: /var/www/wsgi.py
+        mode: "644"
+
+    - name: Add application config to Unit
+      steampunk.unit.python_app:
+        name: sample
+        module: wsgi
+        path: /var/www
+
+    - name: Expose application via port 3000
+      steampunk.unit.listener:
+        pattern: "*:3000"
+        pass: applications/sample
