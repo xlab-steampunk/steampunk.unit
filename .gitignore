@@ -2,3 +2,5 @@ venv
 tests/output
 *.pyc
 vagrant/.vagrant
+docs/source/modules
+docs/build
