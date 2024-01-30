@@ -56,6 +56,7 @@ EXAMPLES = """
     no_processes: 10
     working_directory: /www/store/
     path: /www/store/cart/
+    callable: app
     home: /www/store/.virtualenv/
     module": wsgi
     user": www
@@ -146,6 +147,11 @@ object:
       returned: if set
       type: str
 
+    callable:
+      description: name of the module-based callable that Unit runs as the app.
+      returned: if set
+      type: str
+      
     home:
       description: Virtual environment in use.
       returned: if set
@@ -191,6 +197,7 @@ def main():
         "name": {"required": True, "type": "str"},
         "no_processes": {"type": "int"},
         "path": {"type": "str"},
+        "callable": {"type": "str"},
         "processes": {
             "type": "dict",
             "options": {
