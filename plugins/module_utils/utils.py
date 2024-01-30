@@ -47,7 +47,7 @@ def compact_dict(input):
 
 def app_params_to_payload(params, typ, *extras):
     payload = filter_dict(
-        params, "limits", "processes", "working_directory", "user", "group",
+        params, "callable", "limits", "processes", "working_directory", "user", "group",
         "environment", *extras
     )
 
