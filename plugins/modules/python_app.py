@@ -156,6 +156,16 @@ object:
       description: Virtual environment in use.
       returned: if set
       type: str
+
+    stdout:
+      description: filename where Unit redirects the application’s stdout output.
+      returned: if set and I(type) is C(python)
+      type: str
+
+    stderr:
+      description: filename where Unit redirects the application’s stderr output.
+      returned: if set and I(type) is C(python)
+      type: str
 """
 
 from ansible.module_utils.basic import AnsibleModule
@@ -225,6 +235,8 @@ def main():
         "user": {"type": "str"},
         "version": {"type": "str"},
         "working_directory": {"type": "path"},
+        "stdout": {"type": "path"},
+        "stderr": {"type": "path"},
     }
     required_if = [("state", "present", ("module",))]
     mutually_exclusive = [("no_processes", "processes")]

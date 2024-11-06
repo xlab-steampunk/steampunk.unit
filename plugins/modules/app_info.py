@@ -117,6 +117,16 @@ object:
       description: Virtual environment in use.
       returned: if set and I(type) is C(python)
       type: str
+
+    stdout:
+      description: filename where Unit redirects the application’s stdout output.
+      returned: if set and I(type) is C(python)
+      type: str
+
+    stderr:
+      description: filename where Unit redirects the application’s stderr output.
+      returned: if set and I(type) is C(python)
+      type: str
 """
 
 from ansible.module_utils.basic import AnsibleModule
