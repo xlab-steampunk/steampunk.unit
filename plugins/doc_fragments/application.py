@@ -99,4 +99,14 @@ options:
     description:
       - Environment variables to be passed to the application.
     type: dict
+
+  stdout:
+    description: filename where Unit redirects the application’s stdout output.
+    returned: if set and I(type) is C(python)
+    type: str
+
+  stderr:
+    description: filename where Unit redirects the application’s stderr output.
+    returned: if set and I(type) is C(python)
+    type: str
 """
